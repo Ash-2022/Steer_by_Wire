@@ -1,5 +1,3 @@
-#include <math.h>
-
 // Constants
 
 float pi = 3.1415;
@@ -8,8 +6,8 @@ int RxD_Port=0;       // Pin that gets data from Predictive Stanley
 //int TxD_Port=1;       // Pin that send data to the Ebike Motor
 float max_Steer_Stanley = pi/4;        // Max Steer as per Predictive Stanley
 float min_Steer_Stanley = -pi/4;       // Min Steer as per Predictive Stanley
-float max_Steer_SW_Voltage = 0;       // Max Steer for Steering Wheel
-float min_Steer_SW_Voltage = 3.3;       // Min Steer for Steering Wheel
+float max_Steer_SW_Voltage = 3.3;       // Max Steer for Steering Wheel
+float min_Steer_SW_Voltage = 0;       // Min Steer for Steering Wheel
 float steer = 0.00f;        // Initializing the Steer. This is the feed data recieved by the RxD_Port.
 bool newDataRecieved = false;       // Checks if this is the incoming data is a fresh data or a previously used data.
 float senorValue = 0;
@@ -54,7 +52,7 @@ void recieveSteer(){
   if (steer > max_Steer_Stanley){
     steer = max_Steer_Stanley;
   }
-  else{
+  else if(steer > min_Steer_Stanley){
     steer = min_Steer_Stanley;  
   }
   newDataRecieved = true;
@@ -148,6 +146,8 @@ void loop() {
   float Volt_Desired = map(steer , min_Steer_Stanley , max_Steer_Stanley , min_Steer_SW_Voltage , max_Steer_SW_Voltage);
   float Volt_per_Sec = PControl(sensorValue , Volt_Desired);
   while(Volt_per_Sec != 0.0){
-    if (Volt_per_Sec >)
+    if (Volt_per_Sec > 0){
+      
+    }
   }
 }
