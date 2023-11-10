@@ -179,8 +179,8 @@ void loop() {
   Serial.print("Desired Voltage : ");
   Serial.println(Volt_Desired);
   delay(500);
+  float Volt_per_Sec = PControl(sensorValue , Volt_Desired); 
   while(mod(Volt_per_Sec) != 0.1){
-    float Volt_per_Sec = PControl(sensorValue , Volt_Desired); 
     delay(500);
     Serial.print("PID Out: ");
     float output_voltage = sensorValue + Volt_per_Sec * sample_time;
@@ -195,5 +195,6 @@ void loop() {
     Serial.print("Volt Out : ");
     Serial.println(output);
     delay(500);
+    Volt_per_Sec = PControl(sensorValue , Volt_Desired); 
   }
 }
