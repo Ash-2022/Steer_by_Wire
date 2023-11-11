@@ -50,7 +50,7 @@ void showNewData() {
 
 void recieveSteer(){
   //steer = analogRead(RxD_Port);
-  while (Serial.available() <= 0){}       //Wait for user input
+  while (Serial.available() <= 0){}  //Wait for user input
   if (Serial.available() > 0){
     /* 
       Note : If input is directly read as Integer/Float , it is not read as intended(Garbage values are given even before user-input).
@@ -103,7 +103,7 @@ void setup() {
 
 void readPotentiometerValue(){
   // read the input on analog pin 0:
-  sensorValue = analogRead(PM_Pin_1);
+  sensorValue = analogRead(PM_Pin_1)*max_Steer_SW_Voltage/1023;
   // print out the value you read:
   Serial.println("Potentiometer Value : ");
   Serial.println(sensorValue);
@@ -174,25 +174,28 @@ void loop() {
   showNewData();
   readPotentiometerValue();
   delay(500);
-
-  float Volt_Desired = map(steer , min_Steer_Stanley , max_Steer_Stanley , min_Steer_SW_Voltage , max_Steer_SW_Voltage);
+  float temp_steer = steer + max_Steer_Stanley;
+  float Volt_Desired = temp_steer * (max_Steer_SW_Voltage/(2*max_Steer_Stanley));
+  //float Volt_Desired = map(steer , min_Steer_Stanley , max_Steer_Stanley , max_Steer_SW_Voltage , min_Steer_SW_Voltage);
   Serial.print("Desired Voltage : ");
   Serial.println(Volt_Desired);
   delay(500);
   float Volt_per_Sec = PControl(sensorValue , Volt_Desired); 
-  while(mod(Volt_per_Sec) != 0.1){
+  while(mod(Volt_per_Sec) >= 0.1){
+    readPotentiometerValue();
     delay(500);
-    Serial.print("PID Out: ");
     float output_voltage = sensorValue + Volt_per_Sec * sample_time;
-    if output_voltage > max_Steer_SW_Voltage {
-      output = max_Steer_SW_Voltage;
+    Serial.print("PID Out: ");
+    Serial.println(Volt_per_Sec);
+    if (output_voltage > max_Steer_SW_Voltage) {
+      output_voltage = max_Steer_SW_Voltage;
     }
-    if output_voltage < 0{
-      output = 0;
+    else if (output_voltage < 0){
+      output_voltage = 0;
     }
     int output = (int)(output_voltage/max_Steer_SW_Voltage * 255);
     analogWrite(enA , output);
-    Serial.print("Volt Out : ");
+    Serial.print("Volt(PWM) Out : ");
     Serial.println(output);
     delay(500);
     Volt_per_Sec = PControl(sensorValue , Volt_Desired); 
